@@ -1,0 +1,7 @@
+.calva
+output-window
+deps.clj.jar
+.clj-kondo
+.cpcache
+.lsp
+.nrepl-port
