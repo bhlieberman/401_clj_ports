@@ -5,7 +5,7 @@
   (loop [i 0
          acc []]
     (if (< i n)
-      (recur (inc i) (conj acc (rand-nth (range 1 7))))
+      (recur (inc i) (conj acc (rand-int 7)))
       acc)))
 
 (defn contains-duplicates? [xs]

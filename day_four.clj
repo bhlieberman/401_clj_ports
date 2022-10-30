@@ -12,7 +12,7 @@
         b (.getBlue cs)]
     (/ (reduce + [r g b]) 3)))
 
-(defmulti transform class)
+(defmulti transform "defines the transformation type" class)
 (defmethod transform Integer [b] (invert-bits b))
 (defmethod transform Color [b] (grayscale b))
 
@@ -20,7 +20,10 @@
   (let [in (ImageIO/read (File. f-in))]
     (doseq [w (range (.getWidth in))
             h (range (.getHeight in))]
-      (case tf
-        "invert" (.setRGB in w h (transform (.getRGB in w h)))
-        "grayscale" (.setRGB in w h (transform (Color. (.getRGB in w h))))))
+      (as-> (.getRGB in w h) color
+        (->> (if tf (Color. color) color)
+             transform
+             (.setRGB in w h))))
     (ImageIO/write in "bmp" (File. f-out))))
+
+(bm "baldy-8bit.bmp" "test4.bmp" "grayscale")

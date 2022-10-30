@@ -10,13 +10,10 @@
                [65, 56, 55, 52, 55, 62, 57]])
 
 (defn weather [forecast]
-  (let [all (set (range 51 73))]
-    (->> forecast
-         (mapcat identity)
-         distinct
-         (sort <)
-         set
-         (difference all))))
+  (let [fc (set (mapcat sort forecast))
+        min (apply min fc) max (apply max fc)
+        all (set (range min (inc max)))]
+    (difference all fc)))
 
 (def words ["bush" "bush" "bush" "bush" "bush" "shrub" "shrub" "shrub"])
 
@@ -27,16 +24,15 @@
        (sort-by second >)))
 
 (defn linter [f]
-  (try (with-open [fs (io/reader f)]
-     (->> fs
-          line-seq
-          (map-indexed (fn [i l]
-                         (cond
-                           (or (.endsWith l "{") (.contains l "}")) nil
-                           (not (.endsWith l ";")) (str "Missing semicolon on line" (inc i)))))
-          (into [])))
-       (catch FileNotFoundException e
-         e)))
+  (with-open [fs (io/reader f)]
+    (->> fs
+         line-seq
+         (map-indexed (fn [i l]
+                        (cond
+                          (or (.endsWith l "{") (.contains l "}")) nil
+                          (not (.endsWith l ";")) (str "Missing semicolon on line" (inc i)))))
+         (into []))
+    (catch FileNotFoundException)))
 
 (deftest tally-test
   (testing "That the function returns the sorted seq of voted words"
@@ -55,8 +51,4 @@
 
 (run-tests)
 
-(comment
-  (linter "test3.txt")
-  )
-
-
+(sort (set (mapcat sort forecast)))
