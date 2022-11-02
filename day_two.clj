@@ -1,12 +1,9 @@
 (ns day-two
-  (:require [clojure.test :refer [deftest testing is run-tests]]))
+  (:require [clojure.test :refer [deftest testing is run-tests]]
+            [clojure.walk :refer [walk]]))
 
 (defn roll-dice [n]
-  (loop [i 0
-         acc []]
-    (if (< i n)
-      (recur (inc i) (conj acc (rand-int 7)))
-      acc)))
+  (let [d (range 1 7)] (take n (repeatedly #(rand-nth d)))))
 
 (defn contains-duplicates? [xs]
   (some true? (map #(if (> (count %) 1) true %)
