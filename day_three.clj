@@ -50,5 +50,3 @@
   (is (instance? FileNotFoundException (linter "./test3.txt"))))
 
 (run-tests)
-
-(sort (set (mapcat sort forecast)))
