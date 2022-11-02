@@ -5,3 +5,5 @@ deps.clj.jar
 .cpcache
 .lsp
 .nrepl-port
+target/
+resources/
