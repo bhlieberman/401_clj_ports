@@ -1,5 +1,4 @@
 (ns day-four.main
-  (:require [clojure.java.io :as io])
   (:import [java.io File]
            [java.awt Color]
            [javax.imageio ImageIO])
