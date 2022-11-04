@@ -7,15 +7,14 @@
 (def sys-data {:url "https://ron-swanson-quotes.herokuapp.com/v2/quotes"})
 
 (defn- build-req [url]
-  (let [conn (HttpClient/newHttpClient)
-        uri (URI. url)
+  (let [uri (URI. url)
         req (HttpRequest/newBuilder uri)]
-    [conn req]))
+    (.build req)))
 
-(defn send-req [[conn req]]
-  (let [handler (HttpResponse$BodyHandlers/ofString)]
-    (->> handler
-         (.send conn (.build req)))))
+(defn send-req [req]
+  (let [client (HttpClient/newHttpClient)
+        handler (HttpResponse$BodyHandlers/ofString)]
+    (.send client req handler)))
 
 (defn read-resp [resp]
   (.body resp))
