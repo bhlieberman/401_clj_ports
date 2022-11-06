@@ -4,6 +4,7 @@ deps.clj.jar
 .clj-kondo
 .cpcache
 .lsp
+.portal
 .nrepl-port
 target/
 resources/
