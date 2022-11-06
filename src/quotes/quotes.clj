@@ -7,13 +7,15 @@
            [java.net URI]
            [java.io FileNotFoundException]))
 
-(def p (p/open {:launcher :vs-code}))
-(add-tap #'p/submit)
-
-(def sys-data {:api-url "https://ron-swanson-quotes.herokuapp.com/v2/quotes"
+(def sys-data {:client (HttpClient/newHttpClient)
+               :api-url "https://ron-swanson-quotes.herokuapp.com/v2/quotes"
                :fallback "resources/quotes.json"})
 
-(defn fallback-quote []
+(def result (atom []))
+
+(defn fallback-quote
+  "When API calls fail, this function will return a substitute response"
+  []
   (with-open [rdr (io/reader "resources/quotes.json")]
     (rand-nth (line-seq rdr))))
 
@@ -23,14 +25,19 @@
     (.build req)))
 
 (defn send-req [req]
-  (let [client (HttpClient/newHttpClient)
-        handler (HttpResponse$BodyHandlers/ofString)]
-    (try (.send client req handler)
+  (let [handler (HttpResponse$BodyHandlers/ofString)]
+    (try (.send (:client sys-data) req handler)
          (catch Exception _
            (fallback-quote)))))
 
 (defn read-resp [resp]
   (.body resp))
+
+(defn on-threads [req]
+  (doto (Thread. (fn [] (->> (send-req req)
+                             read-resp
+                             (swap! result conj))))
+    .start))
 
 (defn write-resp [body & {:keys [append]}]
   (with-open [writer (io/writer (:fallback sys-data) :append append)]
@@ -54,4 +61,7 @@
 (deftest send-request
   (is (= 200 (.statusCode (send-req (build-req (:api-url sys-data)))))))
 
-(run-test test-write-resp-to-file)
+(comment
+  (dotimes [_ 5] (-> sys-data :api-url build-req on-threads))
+  (tap> @result)
+  (reset! result []))
